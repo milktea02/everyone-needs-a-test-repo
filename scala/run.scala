@@ -3,9 +3,13 @@
 // sttp is part of the scala toolkit so we could also just bring in the toolkit
 import sttp.client4.quick._
 import sttp.client4.Response
-import upickle.default.*
+import upickle.default._
+import upickle.implicits.key
 
-case class CatFact(text: String, `type`: String)
+case class CatFact(status: FactStatus, text: String, @key("type") animal: String)
+    derives ReadWriter
+
+case class FactStatus(verified: Boolean)
     derives ReadWriter
 
 
@@ -19,6 +23,5 @@ case class CatFact(text: String, `type`: String)
     val responseBody = response.body
     val catFacts: List[CatFact] = upickle.default.read[List[CatFact]](responseBody)
 
-    //for (item <- body.arr) do println(item(s">> ${item.(\"text\").str}")
-    for (fact <- catFacts) do println(s">> ${fact.text}\n")
+    for (fact <- catFacts) do println(s">> ${fact.text}\n>>>> This fact is verified to be: ${fact.status.verified}\n")
 
